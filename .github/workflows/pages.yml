@@ -28,7 +28,11 @@ jobs:
       - name: Build the project
         run: npm run build
 
-      # Step 5: Deploy to GitHub Pages
+      # Step 5: Add .nojekyll file
+      - name: Add .nojekyll
+        run: touch dist/.nojekyll
+
+      # Step 6: Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
