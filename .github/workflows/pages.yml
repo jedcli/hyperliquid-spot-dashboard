@@ -1,4 +1,4 @@
-name: Deploy GitHub Pages
+name: Deploy Vite to GitHub Pages
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,11 +28,7 @@ jobs:
       - name: Build the project
         run: npm run build
 
-      # Step 5: Add .nojekyll file
-      - name: Add .nojekyll
-        run: touch dist/.nojekyll
-
-      # Step 6: Deploy to GitHub Pages
+      # Step 5: Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
