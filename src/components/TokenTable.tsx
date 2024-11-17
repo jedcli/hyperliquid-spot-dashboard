@@ -69,11 +69,11 @@ const TokenTable: React.FC<{ data: TokenData[] }> = ({ data }) => {
   // State
   const [columns, setColumns] = useState<Column[]>([
     { key: 'token', label: 'Token', visible: true, required: true },
-    { key: 'mark_price', label: 'Price', visible: true, required: true },
     { key: 'price_change_24h', label: '24h %', visible: true, required: true },
-    { key: 'slippage', label: 'Spread', visible: false },
-    { key: 'holders_count', label: 'Holders', visible: true },
+    { key: 'mark_price', label: 'Price', visible: true, required: true },
     { key: 'market_cap', label: 'MC', visible: true, required: true },
+    { key: 'holders_count', label: 'Holders', visible: true },
+    { key: 'slippage', label: 'Spread', visible: false },
     { key: 'holders.concentration.top1_share', label: 'Top holder %', visible: true },
     { key: 'holders.concentration.top5_share', label: 'Top 5 holders %', visible: true },
     { key: 'holders.concentration.top20_share', label: 'Top 20 holders %', visible: true },

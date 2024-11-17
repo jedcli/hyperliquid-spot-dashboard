@@ -43,7 +43,7 @@ function App() {
             alt="Hyperliquid" 
             className="h-8"
           />
-          <h1 className="text-2xl font-bold text-gray-100">Token Analytics</h1>
+          <h1 className="text-2xl font-bold text-gray-100">Spot Tokens Dashboard</h1>
         </div>
 
         {loading ? (
