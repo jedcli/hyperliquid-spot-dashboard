@@ -82,6 +82,10 @@ const TokenTable: React.FC<{ data: TokenData[] }> = ({ data }) => {
     { key: 'holders.total_burned_percent', label: 'Burned %', visible: false },
     { key: 'holders.hip2.percent', label: 'HIP-2 %', visible: false },
     { key: 'deploy_time', label: 'Age', visible: true },
+    { key: 'total_bid_size', label: 'Total Bid Size', visible: false },
+    { key: 'total_ask_size', label: 'Total Ask Size', visible: false },
+    { key: 'total_bid_size_usd', label: 'Total Bid Size (USD)', visible: false },
+    { key: 'total_ask_size_usd', label: 'Total Ask Size (USD)', visible: false },
   ]);
 
   const [showColumnSelector, setShowColumnSelector] = useState(false);
@@ -335,7 +339,7 @@ const TokenTable: React.FC<{ data: TokenData[] }> = ({ data }) => {
                       {token.token}
                     </a>
                     {isHyperliquid(token.slippage) ? (
-                      <Tooltip text="Spread <= 0.3%">
+                      <Tooltip text="Spread <= 0.31%">
                         <Droplets size={16} className="text-[#7CFFE9]" />
                       </Tooltip>
                     ) : (
@@ -352,15 +356,15 @@ const TokenTable: React.FC<{ data: TokenData[] }> = ({ data }) => {
             let displayValue = value;
 
             if (column.key === 'mark_price') {
-              // Show all decimal places for price
               displayValue = `$${value}`;
             } else if (column.key === 'price_change_24h' || 
                       column.key === 'slippage' || 
                       column.key.includes('percent') ||
                       column.key.includes('share')) {
-              // Show only 2 decimal places for percentages
               displayValue = `${value.toFixed(2)}%`;
-            } else if (column.key === 'market_cap') {
+            } else if (column.key === 'market_cap' || 
+                       column.key === 'total_bid_size_usd' || 
+                       column.key === 'total_ask_size_usd') {
               displayValue = `$${formatLargeNumber(value)}`;
             } else if (column.key === 'deploy_time') {
               displayValue = formatAge(value);
