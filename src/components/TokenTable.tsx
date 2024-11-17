@@ -197,17 +197,30 @@ const TokenTable: React.FC<{ data: TokenData[] }> = ({ data }) => {
   };
 
   // Sub-components
-  const SortableHeader: React.FC<{ label: string; sortKey: SortKey }> = ({ label, sortKey }) => (
-    <th 
-      className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-[#1A2023]"
-      onClick={() => handleSort(sortKey)}
-    >
-      <div className="flex items-center gap-1">
-        {label}
-        <ArrowUpDown className="h-4 w-4" />
-      </div>
-    </th>
-  );
+  const SortableHeader: React.FC<{ label: string; sortKey: SortKey }> = ({ label, sortKey }) => {
+    const isActive = sortConfig.key === sortKey;
+    const sortDirection = isActive ? sortConfig.direction : null;
+
+    return (
+      <th 
+        className={`px-6 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-[#1A2023] ${
+          isActive ? 'text-[#7CFFE9]' : 'text-gray-400'
+        }`}
+        onClick={() => handleSort(sortKey)}
+      >
+        <div className="flex items-center gap-1">
+          {label}
+          {isActive && (
+            sortDirection === 'asc' ? (
+              <ArrowUpDown className="h-4 w-4 transform rotate-180" />
+            ) : (
+              <ArrowUpDown className="h-4 w-4" />
+            )
+          )}
+        </div>
+      </th>
+    );
+  };
 
   return (
     <div className="relative">
