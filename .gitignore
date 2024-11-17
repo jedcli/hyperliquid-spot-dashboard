@@ -48,3 +48,5 @@ lerna-debug.log*
 
 # Optional
 *.local
+
+deploy.sh
