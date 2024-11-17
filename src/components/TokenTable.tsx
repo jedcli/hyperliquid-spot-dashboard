@@ -76,6 +76,9 @@ const Tooltip: React.FC<{ children: React.ReactNode; text: string }> = ({ childr
 };
 
 const TokenTable: React.FC<{ data: TokenData[] }> = ({ data }) => {
+  // Add an index to each token based on its original position
+  const indexedData = data.map((token, index) => ({ ...token, index: index + 1 }));
+
   // State
   const [columns, setColumns] = useState<Column[]>([
     { key: 'token', label: 'Token', visible: true, required: true },
@@ -126,7 +129,7 @@ const TokenTable: React.FC<{ data: TokenData[] }> = ({ data }) => {
 
   // Filtered and sorted data
   const filteredData = useMemo(() => {
-    return data.filter(token => {
+    return indexedData.filter(token => {
       // Search filter
       if (filters.search && !token.token.toLowerCase().includes(filters.search.toLowerCase())) {
         return false;
@@ -148,7 +151,7 @@ const TokenTable: React.FC<{ data: TokenData[] }> = ({ data }) => {
 
       return true;
     });
-  }, [data, filters]);
+  }, [indexedData, filters]);
 
   const sortedData = useMemo(() => {
     return [...filteredData].sort((a, b) => {
@@ -353,6 +356,9 @@ const TokenTable: React.FC<{ data: TokenData[] }> = ({ data }) => {
   <table className="min-w-full divide-y divide-gray-800">
     <thead className="bg-[#1A2023]">
       <tr>
+        <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+          #
+        </th>
         {visibleColumns.map(column => (
           <SortableHeader 
             key={column.key.toString()} 
@@ -365,6 +371,9 @@ const TokenTable: React.FC<{ data: TokenData[] }> = ({ data }) => {
     <tbody className="bg-[#141B1E] divide-y divide-gray-800">
       {sortedData.map((token) => (
         <tr key={token.token_id} className="hover:bg-[#1A2023]">
+          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-300">
+            {token.index}
+          </td>
           {visibleColumns.map(column => {
             const value = getNestedValue(token, column.key.toString());
             let displayValue = value;
