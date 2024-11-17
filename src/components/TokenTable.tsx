@@ -37,8 +37,16 @@ const formatLargeNumber = (num: number): string => {
 
 const formatPercent = (num: number) => `${num.toFixed(2)}%`;
 
-const formatAge = (dateString: string) => {
-  const deployDate = new Date(dateString);
+const formatAge = (dateString: string, tokenId?: string) => {
+  let deployDate;
+
+  // Hardcode the deployment date for the token with ID 0xc1fb593aeffbeb02f85e0308e9956a90 (PURR)
+  if (tokenId === '0xc1fb593aeffbeb02f85e0308e9956a90') {
+    deployDate = new Date('2024-04-16');
+  } else {
+    deployDate = new Date(dateString);
+  }
+
   const now = new Date();
   const diffInDays = Math.floor((now.getTime() - deployDate.getTime()) / (1000 * 60 * 60 * 24));
   return `${diffInDays}d`;
@@ -142,15 +150,34 @@ const TokenTable: React.FC<{ data: TokenData[] }> = ({ data }) => {
     });
   }, [data, filters]);
 
-  const sortedData = [...filteredData].sort((a, b) => {
-    const aValue = getNestedValue(a, sortConfig.key.toString());
-    const bValue = getNestedValue(b, sortConfig.key.toString());
-    
-    if (sortConfig.direction === 'asc') {
-      return aValue > bValue ? 1 : -1;
-    }
-    return aValue < bValue ? 1 : -1;
-  });
+  const sortedData = useMemo(() => {
+    return [...filteredData].sort((a, b) => {
+      const aValue = getNestedValue(a, sortConfig.key.toString());
+      const bValue = getNestedValue(b, sortConfig.key.toString());
+
+      // Special handling for deploy_time to sort by numeric age
+      if (sortConfig.key === 'deploy_time') {
+        const aAge = a.token_id === '0xc1fb593aeffbeb02f85e0308e9956a90' ? 
+          Math.floor((new Date().getTime() - new Date('2024-04-16').getTime()) / (1000 * 60 * 60 * 24)) :
+          Math.floor((new Date().getTime() - new Date(aValue).getTime()) / (1000 * 60 * 60 * 24));
+        
+        const bAge = b.token_id === '0xc1fb593aeffbeb02f85e0308e9956a90' ? 
+          Math.floor((new Date().getTime() - new Date('2024-04-16').getTime()) / (1000 * 60 * 60 * 24)) :
+          Math.floor((new Date().getTime() - new Date(bValue).getTime()) / (1000 * 60 * 60 * 24));
+
+        return sortConfig.direction === 'asc' ? aAge - bAge : bAge - aAge;
+      }
+
+      // Handle numeric and string values separately
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+      } else if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return sortConfig.direction === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+      }
+
+      return 0;
+    });
+  }, [filteredData, sortConfig]);
 
   // Event handlers
   const handleSort = (key: SortKey) => {
@@ -326,6 +353,9 @@ const TokenTable: React.FC<{ data: TokenData[] }> = ({ data }) => {
       {sortedData.map((token) => (
         <tr key={token.token_id} className="hover:bg-[#1A2023]">
           {visibleColumns.map(column => {
+            const value = getNestedValue(token, column.key.toString());
+            let displayValue = value;
+
             if (column.key === 'token') {
               return (
                 <td key={column.key} className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -352,9 +382,6 @@ const TokenTable: React.FC<{ data: TokenData[] }> = ({ data }) => {
               );
             }
 
-            const value = getNestedValue(token, column.key.toString());
-            let displayValue = value;
-
             if (column.key === 'mark_price') {
               displayValue = `$${value}`;
             } else if (column.key === 'price_change_24h' || 
@@ -367,7 +394,7 @@ const TokenTable: React.FC<{ data: TokenData[] }> = ({ data }) => {
                        column.key === 'total_ask_size_usd') {
               displayValue = `$${formatLargeNumber(value)}`;
             } else if (column.key === 'deploy_time') {
-              displayValue = formatAge(value);
+              displayValue = formatAge(value, token.token_id);
             }
 
             return (
