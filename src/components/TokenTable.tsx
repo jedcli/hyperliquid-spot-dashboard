@@ -1,5 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ArrowUpDown, Droplets, Waves, Settings, Search, SlidersHorizontal } from 'lucide-react';
+import { FaSquareXTwitter, FaTelegram } from 'react-icons/fa6';
+import { FiX } from 'react-icons/fi';
 import { TokenData } from '../types';
 
 type SortKey = keyof TokenData | 'holders.concentration.top1_share' | 
@@ -92,6 +94,21 @@ const TokenTable: React.FC<{ data: TokenData[] }> = ({ data }) => {
     mcMax: '',
   });
 
+  // Close the popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.column-selector') && !target.closest('.customize-button')) {
+        setShowColumnSelector(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   // Derived state
   const visibleColumns = columns.filter(col => col.visible);
 
@@ -163,8 +180,34 @@ const TokenTable: React.FC<{ data: TokenData[] }> = ({ data }) => {
 
   return (
     <div className="relative">
+      {/* Notice Block */}
+      <div className="mb-4 p-4 bg-[#1A2023] rounded-lg border border-gray-800 text-gray-300">
+        <p className="mb-2">
+          This is not an official Hyperliquid app. Data may be inaccurate.
+        </p>
+        <p className="mb-2">Contact dev:</p>
+        <div className="flex gap-4">
+          <a 
+            href="https://x.com/jedcli" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="flex items-center gap-2"
+          >
+            <FaSquareXTwitter className="h-6 w-6 text-gray-300" />
+          </a>
+          <a 
+            href="https://t.me/jedcli" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="flex items-center gap-2"
+          >
+            <FaTelegram className="h-6 w-6 text-gray-300" />
+          </a>
+        </div>
+      </div>
+
       {/* Header Controls */}
-      <div className="mb-4 flex justify-end gap-2">
+      <div className="mb-4 flex justify-end gap-2 relative">
         <button
           onClick={() => setShowFilters(!showFilters)}
           className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-300 bg-[#1A2023] rounded-md hover:bg-[#242C30] transition-colors"
@@ -175,11 +218,36 @@ const TokenTable: React.FC<{ data: TokenData[] }> = ({ data }) => {
         
         <button
           onClick={() => setShowColumnSelector(!showColumnSelector)}
-          className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-300 bg-[#1A2023] rounded-md hover:bg-[#242C30] transition-colors relative"
+          className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-300 bg-[#1A2023] rounded-md hover:bg-[#242C30] transition-colors relative customize-button"
         >
           <Settings size={16} />
           Customize
         </button>
+
+        {/* Column Selector Popup */}
+        {showColumnSelector && (
+          <div className="absolute right-0 top-full mt-2 z-20 bg-[#1A2023] rounded-lg shadow-xl p-4 border border-gray-700 column-selector">
+            <div className="grid grid-cols-2 gap-4">
+              {columns.map(column => (
+                <label 
+                  key={column.key.toString()} 
+                  className={`flex items-center gap-2 ${
+                    column.required ? 'text-gray-500' : 'text-gray-300'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={column.visible}
+                    onChange={() => !column.required && toggleColumn(column.key)}
+                    disabled={column.required}
+                    className="form-checkbox text-[#7CFFE9] disabled:opacity-50"
+                  />
+                  {column.label}
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Filters Section */}
@@ -232,31 +300,6 @@ const TokenTable: React.FC<{ data: TokenData[] }> = ({ data }) => {
                 className="w-full px-4 py-2 bg-[#141B1E] border border-gray-700 rounded-lg text-gray-300 focus:outline-none focus:border-[#7CFFE9]"
               />
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Column Selector Popup */}
-      {showColumnSelector && (
-        <div className="absolute right-0 top-12 z-20 bg-[#1A2023] rounded-lg shadow-xl p-4 border border-gray-700">
-          <div className="grid grid-cols-2 gap-4">
-            {columns.map(column => (
-              <label 
-                key={column.key.toString()} 
-                className={`flex items-center gap-2 ${
-                  column.required ? 'text-gray-500' : 'text-gray-300'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={column.visible}
-                  onChange={() => !column.required && toggleColumn(column.key)}
-                  disabled={column.required}
-                  className="form-checkbox text-[#7CFFE9] disabled:opacity-50"
-                />
-                {column.label}
-              </label>
-            ))}
           </div>
         </div>
       )}
